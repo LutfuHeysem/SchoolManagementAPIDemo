@@ -28,4 +28,8 @@ public class StudentService {
         students.add(student);
         studentExcelRepository.saveAllStudents(students);
     }
+
+    public void deleteStudent(Integer id) {
+        studentExcelRepository.deleteStudentById(id);
+    }
 }

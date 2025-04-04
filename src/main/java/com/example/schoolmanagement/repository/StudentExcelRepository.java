@@ -25,4 +25,8 @@ public class StudentExcelRepository {
     public Student getStudentById(Integer id) {
         return excelHelper.readStudentById(id);
     }
+
+    public void deleteStudentById(Integer id) {
+        excelHelper.deleteStudentById(id);
+    }
 }

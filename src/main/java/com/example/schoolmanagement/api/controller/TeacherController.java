@@ -3,6 +3,7 @@ package com.example.schoolmanagement.api.controller;
 import com.example.schoolmanagement.model.Teacher;
 import com.example.schoolmanagement.service.TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,14 +24,20 @@ public class TeacherController {
         return teacherService.getTeachers();
     }
 
-    @GetMapping("/{id}")
-    public Teacher getTeacher(@RequestParam Integer id){
-        return teacherService.getTeacher(id);
+    @GetMapping("/{ID}")
+    public Teacher getTeacher(@PathVariable Integer ID){
+        return teacherService.getTeacher(ID);
     }
 
     @PostMapping
-    public String addTeacher(@RequestBody Teacher teacher){
+    public ResponseEntity<String> addTeacher(
+            @RequestParam int ID,
+            @RequestParam String name,
+            @RequestParam int age,
+            @RequestParam String email) {
+        Teacher teacher = new Teacher(ID, name, age, email);
         teacherService.addTeacher(teacher);
-        return "Teacher added successfully!";
+
+        return ResponseEntity.ok("Teacher created successfully");
     }
 }

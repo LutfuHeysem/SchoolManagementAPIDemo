@@ -3,6 +3,7 @@ package com.example.schoolmanagement.api.controller;
 import com.example.schoolmanagement.model.Student;
 import com.example.schoolmanagement.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,14 +24,28 @@ public class StudentController {
         return studentService.getStudents();
     }
 
-    @GetMapping("/{id}")
-    public Student getStudent(@RequestParam Integer id){
-        return studentService.getStudent(id);
+    @GetMapping("/{ID}")
+    public Student getStudent(@PathVariable Integer ID) {
+        return studentService.getStudent(ID);
     }
 
     @PostMapping
-    public String addStudent(@RequestBody Student student){
+    public ResponseEntity<String> addStudent(
+            @RequestParam int ID,
+            @RequestParam String name,
+            @RequestParam int age,
+            @RequestParam String email,
+            @RequestParam int classLevel) {
+        Student student = new Student(ID, name, age, email, classLevel);
         studentService.addStudent(student);
-        return "Student added successfully!";
+
+        return ResponseEntity.ok("Student created successfully");
     }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteStudent(@RequestParam Integer ID) {
+        studentService.deleteStudent(ID);
+        return ResponseEntity.ok("Student deleted successfully");
+    }
+
 }

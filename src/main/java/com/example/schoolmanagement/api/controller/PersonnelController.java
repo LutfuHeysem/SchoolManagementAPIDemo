@@ -3,6 +3,7 @@ package com.example.schoolmanagement.api.controller;
 import com.example.schoolmanagement.model.Personnel;
 import com.example.schoolmanagement.service.PersonnelService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,14 +24,20 @@ public class PersonnelController {
         return personnelService.getPersonnels();
     }
 
-    @GetMapping("/{id}")
-    public Personnel getPersonnel(@RequestParam Integer id){
-        return personnelService.getPersonnel(id);
+    @GetMapping("/{ID}")
+    public Personnel getPersonnel(@PathVariable Integer ID){
+        return personnelService.getPersonnel(ID);
     }
 
     @PostMapping
-    public String addPersonnel(@RequestBody Personnel personnel){
+    public ResponseEntity<String> addPersonnel(
+            @RequestParam int ID,
+            @RequestParam String name,
+            @RequestParam int age,
+            @RequestParam String email) {
+        Personnel personnel = new Personnel(ID, name, age, email);
         personnelService.addPersonnel(personnel);
-        return "Personnel added successfully!";
+
+        return ResponseEntity.ok("Personnel created successfully");
     }
 }

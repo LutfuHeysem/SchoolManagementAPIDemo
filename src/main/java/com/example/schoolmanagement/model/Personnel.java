@@ -3,6 +3,10 @@ package com.example.schoolmanagement.model;
 public class Personnel extends Person {
 
     private boolean isOnLeave;
+    private int ID;
+    private String name;
+    private int age;
+    private String email;
 
     public Personnel(){
         super();
