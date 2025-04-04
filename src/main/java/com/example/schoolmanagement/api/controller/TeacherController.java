@@ -23,7 +23,7 @@ public class TeacherController {
         return teacherService.getTeachers();
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public Teacher getTeacher(@RequestParam Integer id){
         return teacherService.getTeacher(id);
     }

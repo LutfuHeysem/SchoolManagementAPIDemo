@@ -23,7 +23,7 @@ public class PersonnelController {
         return personnelService.getPersonnels();
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public Personnel getPersonnel(@RequestParam Integer id){
         return personnelService.getPersonnel(id);
     }

@@ -23,7 +23,7 @@ public class StudentController {
         return studentService.getStudents();
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public Student getStudent(@RequestParam Integer id){
         return studentService.getStudent(id);
     }
