@@ -69,6 +69,7 @@ public class ExcelHelper {
                 Field[] fields = data.get(0).getClass().getDeclaredFields();
 
                 for (int i = 0; i < fields.length; i++) {
+                    fields[i].setAccessible(true);
                     headerRow.createCell(i).setCellValue(fields[i].getName());
                 }
 
@@ -79,10 +80,14 @@ public class ExcelHelper {
                     for (int i = 0; i < fields.length; i++) {
                         fields[i].setAccessible(true);
                         Object value = fields[i].get(item);
-                        if (value instanceof String) {
-                            row.createCell(i).setCellValue((String) value);
-                        } else if (value instanceof Integer) {
-                            row.createCell(i).setCellValue((Integer) value);
+                        if (value != null) {
+                            if (value instanceof String) {
+                                row.createCell(i).setCellValue((String) value);
+                            } else if (value instanceof Integer) {
+                                row.createCell(i).setCellValue((Integer) value);
+                            } else if (value instanceof Double) {
+                                row.createCell(i).setCellValue((Double) value);
+                            }
                         }
                     }
                 }
