@@ -26,7 +26,7 @@ public class StudentExcelRepository {
         return excelHelper.readStudentById(id);
     }
 
-    public void deleteStudentById(Integer id) {
-        excelHelper.deleteStudentById(id);
+    public boolean deleteStudentById(Integer id) {
+        return excelHelper.deleteStudentById(id);
     }
 }

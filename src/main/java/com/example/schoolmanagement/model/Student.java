@@ -2,11 +2,12 @@ package com.example.schoolmanagement.model;
 
 public class Student extends Person {
 
-    private int classLevel;
     private int ID;
     private String name;
     private int age;
     private String email;
+    private int classLevel;
+
 
 
     public Student(){

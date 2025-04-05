@@ -5,11 +5,11 @@ import java.util.List;
 
 public class Teacher extends Person {
 
-    private boolean isOnLeave;
     private int ID;
     private String name;
     private int age;
     private String email;
+    private boolean isOnLeave;
     private List<Integer> assignedClasses;
 
     public Teacher(){

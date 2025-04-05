@@ -37,6 +37,8 @@ public class StudentController {
             @RequestParam String email,
             @RequestParam int classLevel) {
         Student student = new Student(ID, name, age, email, classLevel);
+//        String response = "";
+//        response += student.getID() + student.getName() + student.getAge() + student.getEmail() + student.getClassLevel();
         studentService.addStudent(student);
 
         return ResponseEntity.ok("Student created successfully");
@@ -44,8 +46,10 @@ public class StudentController {
 
     @DeleteMapping
     public ResponseEntity<String> deleteStudent(@RequestParam Integer ID) {
-        studentService.deleteStudent(ID);
-        return ResponseEntity.ok("Student deleted successfully");
+        boolean isDeleted = studentService.deleteStudent(ID);
+        if(isDeleted)
+            return ResponseEntity.ok("Student deleted successfully");
+        else
+            return ResponseEntity.ok("Student not found");
     }
-
 }
