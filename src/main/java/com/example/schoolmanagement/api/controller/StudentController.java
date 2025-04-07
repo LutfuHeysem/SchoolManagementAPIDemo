@@ -20,7 +20,7 @@ public class StudentController {
     }
 
     @GetMapping
-    public List<Student> getStudents() throws IllegalAccessException {
+    public List<Student> getStudents() {
         return studentService.getStudents();
     }
 
@@ -35,7 +35,7 @@ public class StudentController {
             @RequestParam String name,
             @RequestParam int age,
             @RequestParam String email,
-            @RequestParam int classLevel) throws IllegalAccessException {
+            @RequestParam int classLevel) {
         Student student = new Student(id, name, age, email, classLevel);
         studentService.addStudent(student);
 
@@ -52,9 +52,15 @@ public class StudentController {
     }
 
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<String> updateStudent(@PathVariable Integer id) {
-        boolean isUpdated = studentService.updateStudent(id);
+    @PatchMapping("/{id}/{newId}/{newName}/{newAge}/{newEmail}/{newClassLevel}")
+    public ResponseEntity<String> updateStudent(@PathVariable Integer id,
+                                                @PathVariable Integer newId,
+                                                @PathVariable String newName,
+                                                @PathVariable Integer newAge,
+                                                @PathVariable String newEmail,
+                                                @PathVariable Integer newClassLevel) {
+        Student student = new Student(newId, newName, newAge, newEmail, newClassLevel);
+        boolean isUpdated = studentService.updateStudent(id, student);
         if (isUpdated)
             return ResponseEntity.ok("Student updated successfully");
         else

@@ -33,7 +33,7 @@ public class StudentService {
         return studentExcelRepository.deleteStudentById(id);
     }
 
-    public boolean updateStudent(Integer id) {
-        return studentExcelRepository.updateStudentById(id);
+    public boolean updateStudent(Integer id, Student student) {
+        return studentExcelRepository.updateStudentById(id, student);
     }
 }
