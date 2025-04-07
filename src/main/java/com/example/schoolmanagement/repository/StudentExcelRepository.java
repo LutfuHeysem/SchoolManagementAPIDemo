@@ -3,6 +3,7 @@ package com.example.schoolmanagement.repository;
 import com.example.schoolmanagement.model.Student;
 import org.springframework.stereotype.Repository;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 @Repository
@@ -28,5 +29,9 @@ public class StudentExcelRepository {
 
     public boolean deleteStudentById(Integer id) {
         return excelHelper.deleteStudentById(id);
+    }
+
+    public boolean updateStudentById(Integer id) {
+        return excelHelper.updateStudentById(id);
     }
 }

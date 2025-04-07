@@ -20,35 +20,43 @@ public class StudentController {
     }
 
     @GetMapping
-    public List<Student> getStudents(){
+    public List<Student> getStudents() throws IllegalAccessException {
         return studentService.getStudents();
     }
 
-    @GetMapping("/{ID}")
-    public Student getStudent(@PathVariable Integer ID) {
-        return studentService.getStudent(ID);
+    @GetMapping("/{id}")
+    public Student getStudent(@PathVariable Integer id) {
+        return studentService.getStudent(id);
     }
 
     @PostMapping
     public ResponseEntity<String> addStudent(
-            @RequestParam int ID,
+            @RequestParam int id,
             @RequestParam String name,
             @RequestParam int age,
             @RequestParam String email,
-            @RequestParam int classLevel) {
-        Student student = new Student(ID, name, age, email, classLevel);
-//        String response = "";
-//        response += student.getID() + student.getName() + student.getAge() + student.getEmail() + student.getClassLevel();
+            @RequestParam int classLevel) throws IllegalAccessException {
+        Student student = new Student(id, name, age, email, classLevel);
         studentService.addStudent(student);
 
         return ResponseEntity.ok("Student created successfully");
     }
 
-    @DeleteMapping
-    public ResponseEntity<String> deleteStudent(@RequestParam Integer ID) {
-        boolean isDeleted = studentService.deleteStudent(ID);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteStudent(@PathVariable Integer id) {
+        boolean isDeleted = studentService.deleteStudent(id);
         if(isDeleted)
             return ResponseEntity.ok("Student deleted successfully");
+        else
+            return ResponseEntity.ok("Student not found");
+    }
+
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> updateStudent(@PathVariable Integer id) {
+        boolean isUpdated = studentService.updateStudent(id);
+        if (isUpdated)
+            return ResponseEntity.ok("Student updated successfully");
         else
             return ResponseEntity.ok("Student not found");
     }

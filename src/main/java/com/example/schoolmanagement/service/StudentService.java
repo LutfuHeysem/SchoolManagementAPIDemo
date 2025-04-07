@@ -2,7 +2,6 @@ package com.example.schoolmanagement.service;
 
 import com.example.schoolmanagement.model.Student;
 import com.example.schoolmanagement.repository.StudentExcelRepository;
-import org.apache.commons.collections4.bag.SynchronizedSortedBag;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,14 +26,14 @@ public class StudentService {
     public void addStudent(Student student) {
         List<Student> students = studentExcelRepository.getAllStudents();
         students.add(student);
-        for(Student studentt : students) {
-            System.out.println(studentt);
-            System.out.println(studentt.getName() + studentt.getID());
-        }
         studentExcelRepository.saveAllStudents(students);
     }
 
     public boolean deleteStudent(Integer id) {
         return studentExcelRepository.deleteStudentById(id);
+    }
+
+    public boolean updateStudent(Integer id) {
+        return studentExcelRepository.updateStudentById(id);
     }
 }

@@ -1,8 +1,8 @@
 package com.example.schoolmanagement.model;
 
-public class Student extends Person {
+public class Student {
 
-    private int ID;
+    private int id;
     private String name;
     private int age;
     private String email;
@@ -11,12 +11,18 @@ public class Student extends Person {
 
 
     public Student(){
-        super();
+        this.setId(0);
+        this.setName("");
+        this.setAge(0);
+        this.setEmail("");
         this.setClassLevel(0);
     }
 
-    public Student(int ID, String name, int age, String email, int classLevel) {
-        super(ID, name, age, email);
+    public Student(int id, String name, int age, String email, int classLevel) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.email = email;
         this.classLevel = classLevel;
     }
 
@@ -28,4 +34,37 @@ public class Student extends Person {
         this.classLevel = classLevel;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    
 }
