@@ -29,11 +29,11 @@ public class StudentService {
         studentExcelRepository.saveAllStudents(students);
     }
 
-    public boolean deleteStudent(Integer id) {
-        return studentExcelRepository.deleteStudentById(id);
+    public void deleteStudent(Integer id) {
+        studentExcelRepository.deleteStudentById(id);
     }
 
-    public boolean updateStudent(Integer id, Student student) {
-        return studentExcelRepository.updateStudentById(id, student);
+    public void updateStudent(Integer id, Student student) {
+        studentExcelRepository.updateStudentById(id, student);
     }
 }

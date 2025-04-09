@@ -1,6 +1,8 @@
 package com.example.schoolmanagement.api.controller;
 
+import com.example.schoolmanagement.model.PendingRequest;
 import com.example.schoolmanagement.model.Student;
+import com.example.schoolmanagement.service.PendingRequestService;
 import com.example.schoolmanagement.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +15,13 @@ import java.util.List;
 public class StudentController {
 
     private final StudentService studentService;
+    private final PendingRequestService pendingRequestService;
 
     @Autowired
-    public StudentController(StudentService studentService){
+    public StudentController(StudentService studentService,
+                             PendingRequestService pendingRequestService) {
         this.studentService = studentService;
+        this.pendingRequestService = pendingRequestService;
     }
 
     @GetMapping
@@ -37,18 +42,22 @@ public class StudentController {
             @RequestParam String email,
             @RequestParam int classLevel) {
         Student student = new Student(id, name, age, email, classLevel);
-        studentService.addStudent(student);
+//        studentService.addStudent(student);
 
-        return ResponseEntity.ok("Student created successfully");
+        String requestId = pendingRequestService.createRequest(new PendingRequest("CREATE", student));
+
+        return ResponseEntity.ok("Request ID: " + requestId + ". Awaiting manager approval.");
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteStudent(@PathVariable Integer id) {
-        boolean isDeleted = studentService.deleteStudent(id);
-        if(isDeleted)
-            return ResponseEntity.ok("Student deleted successfully");
-        else
+        Student student = studentService.getStudent(id);
+        if(student == null)
             return ResponseEntity.ok("Student not found");
+
+        String requestId = pendingRequestService.createRequest(new PendingRequest("DELETE", student));
+
+        return ResponseEntity.ok("Request ID: " + requestId + ". Awaiting manager approval.");
     }
 
 
@@ -59,11 +68,13 @@ public class StudentController {
                                                 @PathVariable Integer newAge,
                                                 @PathVariable String newEmail,
                                                 @PathVariable Integer newClassLevel) {
-        Student student = new Student(newId, newName, newAge, newEmail, newClassLevel);
-        boolean isUpdated = studentService.updateStudent(id, student);
-        if (isUpdated)
-            return ResponseEntity.ok("Student updated successfully");
-        else
+        Student checkStudent = studentService.getStudent(id);
+        if(checkStudent == null)
             return ResponseEntity.ok("Student not found");
+        Student student = new Student(newId, newName, newAge, newEmail, newClassLevel);
+
+        String requestId = pendingRequestService.createRequest(new PendingRequest("UPDATE", checkStudent, student));
+
+        return ResponseEntity.ok("Request ID: " + requestId + ". Awaiting manager approval.");
     }
 }
