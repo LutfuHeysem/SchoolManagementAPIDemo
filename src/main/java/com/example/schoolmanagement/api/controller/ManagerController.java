@@ -60,6 +60,29 @@ public class ManagerController {
         return ResponseEntity.ok("Operation approved and completed");
     }
 
+    @PostMapping("/reject")
+    public ResponseEntity<String> rejectRequest(
+            @RequestParam String requestId,
+            @RequestParam String username,
+            @RequestParam String password) {
+        // Authenticate manager
+        if (!managerService.authenticate(username, password)) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        PendingRequest request = pendingRequestService.getRequest(requestId);
+        if (request == null) {
+            return ResponseEntity.badRequest().body("Invalid request ID");
+        }
+        if(!request.getOperationType().equals("CREATE") &&
+            !request.getOperationType().equals("DELETE") &&
+            !request.getOperationType().equals("UPDATE"))
+            ResponseEntity.badRequest().body("Unsupported operation");
+
+        pendingRequestService.deleteRequest(requestId);
+        return ResponseEntity.ok("Operation rejected and deleted");
+    }
+
     @GetMapping
     public Map<String, PendingRequest> getAllPendingRequests() {
         return pendingRequestService.getAllRequests();
