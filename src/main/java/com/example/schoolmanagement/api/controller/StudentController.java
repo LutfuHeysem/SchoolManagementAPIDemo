@@ -44,7 +44,7 @@ public class StudentController {
         Student student = new Student(id, name, age, email, classLevel);
 //        studentService.addStudent(student);
 
-        String requestId = pendingRequestService.createRequest(new PendingRequest("CREATE", student));
+        String requestId = pendingRequestService.createRequest(new PendingRequest("CREATE_STUDENT", student));
 
         return ResponseEntity.ok("Request ID: " + requestId + ". Awaiting manager approval.");
     }
@@ -55,7 +55,7 @@ public class StudentController {
         if(student == null)
             return ResponseEntity.ok("Student not found");
 
-        String requestId = pendingRequestService.createRequest(new PendingRequest("DELETE", student));
+        String requestId = pendingRequestService.createRequest(new PendingRequest("DELETE_STUDENT", student));
 
         return ResponseEntity.ok("Request ID: " + requestId + ". Awaiting manager approval.");
     }
@@ -73,7 +73,7 @@ public class StudentController {
             return ResponseEntity.ok("Student not found");
         Student student = new Student(newId, newName, newAge, newEmail, newClassLevel);
 
-        String requestId = pendingRequestService.createRequest(new PendingRequest("UPDATE", checkStudent, student));
+        String requestId = pendingRequestService.createRequest(new PendingRequest("UPDATE_STUDENT", checkStudent, student));
 
         return ResponseEntity.ok("Request ID: " + requestId + ". Awaiting manager approval.");
     }

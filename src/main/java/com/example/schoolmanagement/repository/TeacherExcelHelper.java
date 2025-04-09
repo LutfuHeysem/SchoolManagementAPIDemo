@@ -1,29 +1,34 @@
 package com.example.schoolmanagement.repository;
 
-import com.example.schoolmanagement.model.Student;
-import org.apache.poi.ss.usermodel.*;
+import com.example.schoolmanagement.model.Teacher;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class ExcelHelper {
+public class TeacherExcelHelper {
 
-    private static final String STUDENT_FILE = "/Users/lheysemk/Desktop/ExcelFiles/Students.xlsx";
+    private static final String TEACHER_FILE = "/Users/lheysemk/Desktop/ExcelFiles/Teachers.xlsx";
 
-    String[] studentHeaders = {"id", "name", "age", "email", "classLevel"};
+    String[] teacherHeaders = {"id", "name", "age", "email", "assignedClass", "isOnLeave", "remainingLeaveQuota", "currentLeaveDays"};
 
     /**
      * Write
      */
-    public void writeToExcel(String filePath, List<Student> data, String[] headers) {
+    public void writeToExcel(String filePath, List<Teacher> data, String[] headers) {
         try (Workbook workbook = new XSSFWorkbook();
              FileOutputStream fileOut = new FileOutputStream(filePath)) {
 
-            Sheet sheet = workbook.createSheet("Students");
+            Sheet sheet = workbook.createSheet("Teachers");
 
             // Create header row
             Row headerRow = sheet.createRow(0);
@@ -35,12 +40,13 @@ public class ExcelHelper {
             // Populate rows with data
             for (int i = 0; i < data.size(); i++) {
                 Row row = sheet.createRow(i + 1); // Start from row 1 as 0 is the header
-                Student student = data.get(i);
-                row.createCell(0).setCellValue(student.getId());
-                row.createCell(1).setCellValue(student.getName());
-                row.createCell(2).setCellValue(student.getAge());
-                row.createCell(3).setCellValue(student.getEmail());
-                row.createCell(4).setCellValue(student.getClassLevel());
+                Teacher teacher = data.get(i);
+                row.createCell(0).setCellValue(teacher.getId());
+                row.createCell(1).setCellValue(teacher.getName());
+                row.createCell(2).setCellValue(teacher.getAge());
+                row.createCell(3).setCellValue(teacher.getEmail());
+                row.createCell(4).setCellValue(teacher.getAssignedClass());
+                //TODO: add the rest
             }
 
             // Auto-size columns
@@ -58,9 +64,9 @@ public class ExcelHelper {
     /**
      * Read all
      */
-    public List<Student> readFromExcel(String filePath) {
-        List<Student> students = new ArrayList<>();
-    
+    public List<Teacher> readFromExcel(String filePath) {
+        List<Teacher> teachers = new ArrayList<>();
+
         try (FileInputStream fis = new FileInputStream(filePath);
              Workbook workbook = new XSSFWorkbook(fis)) {
 
@@ -71,15 +77,16 @@ public class ExcelHelper {
                 Row row = sheet.getRow(i);
 
                 if (row != null) {
-                    Student student = new Student();
+                    Teacher teacher = new Teacher();
 
-                    student.setId((int) row.getCell(0).getNumericCellValue());
-                    student.setName(row.getCell(1).getStringCellValue());
-                    student.setAge((int) row.getCell(2).getNumericCellValue());
-                    student.setEmail(row.getCell(3).getStringCellValue());
-                    student.setClassLevel((int) row.getCell(4).getNumericCellValue());
+                    teacher.setId((int) row.getCell(0).getNumericCellValue());
+                    teacher.setName(row.getCell(1).getStringCellValue());
+                    teacher.setAge((int) row.getCell(2).getNumericCellValue());
+                    teacher.setEmail(row.getCell(3).getStringCellValue());
+                    teacher.setAssignedClass((int) row.getCell(4).getNumericCellValue());
+                    //TODO: add the rest
 
-                    students.add(student);
+                    teachers.add(teacher);
                 }
             }
 
@@ -87,13 +94,13 @@ public class ExcelHelper {
             throw new RuntimeException("Failed to read data from Excel file: " + filePath, e);
         }
 
-        return students;
+        return teachers;
     }
 
     /**
      * Read by ID
      */
-    public Student readFromExcelById(String filePath, Integer id) {
+    public Teacher readFromExcelById(String filePath, Integer id) {
         try (FileInputStream fis = new FileInputStream(filePath);
              Workbook workbook = new XSSFWorkbook(fis)) {
 
@@ -106,15 +113,16 @@ public class ExcelHelper {
                 if (row != null) {
                     int rowId = (int) row.getCell(0).getNumericCellValue();
                     if (rowId == id) {
-                        Student student = new Student();
+                        Teacher teacher = new Teacher();
 
-                        student.setId(rowId);
-                        student.setName(row.getCell(1).getStringCellValue());
-                        student.setAge((int) row.getCell(2).getNumericCellValue());
-                        student.setEmail(row.getCell(3).getStringCellValue());
-                        student.setClassLevel((int) row.getCell(4).getNumericCellValue());
+                        teacher.setId(rowId);
+                        teacher.setName(row.getCell(1).getStringCellValue());
+                        teacher.setAge((int) row.getCell(2).getNumericCellValue());
+                        teacher.setEmail(row.getCell(3).getStringCellValue());
+                        teacher.setAssignedClass((int) row.getCell(4).getNumericCellValue());
+                        //TODO: add the rest
 
-                        return student;
+                        return teacher;
                     }
                 }
             }
@@ -129,8 +137,7 @@ public class ExcelHelper {
     /**
      * Delete by ID
      */
-    public boolean deleteFromExcelById(String filePath, Integer id) {
-        boolean isDeleted = false;
+    public void deleteFromExcelById(String filePath, Integer id) {
         try (FileInputStream fis = new FileInputStream(filePath);
              Workbook workbook = new XSSFWorkbook(fis)) {
 
@@ -142,7 +149,6 @@ public class ExcelHelper {
                     int rowId = (int) row.getCell(0).getNumericCellValue();
                     if (rowId == id) {
                         sheet.removeRow(row);
-                        isDeleted = true;
 
                         // Shift rows up to fill the gap
                         int lastRowNum = sheet.getLastRowNum();
@@ -163,14 +169,12 @@ public class ExcelHelper {
             throw new RuntimeException("Failed to delete data from Excel file by ID: " + filePath, e);
         }
 
-        return isDeleted;
     }
 
     /**
      * Update by ID
      */
-    public boolean updateByID(String filePath, Integer id, Student student) {
-        boolean isUpdated = false;
+    public void updateByID(String filePath, Integer id, Teacher teacher) {
 
         try (FileInputStream fis = new FileInputStream(filePath);
              Workbook workbook = new XSSFWorkbook(fis)) {
@@ -183,11 +187,12 @@ public class ExcelHelper {
                 if (row != null) {
                     int rowId = (int) row.getCell(0).getNumericCellValue();
                     if (rowId == id) {
-                        int newId = student.getId();
-                        String newName = student.getName();
-                        int newAge = student.getAge();
-                        String newEmail = student.getEmail();
-                        int newClassLevel = student.getClassLevel();
+                        int newId = teacher.getId();
+                        String newName = teacher.getName();
+                        int newAge = teacher.getAge();
+                        String newEmail = teacher.getEmail();
+                        int newClassLevel = teacher.getAssignedClass();
+                        //TODO: add the rest
 
                         if(newId != 0)
                             row.getCell(0).setCellValue(newId);
@@ -199,7 +204,8 @@ public class ExcelHelper {
                             row.getCell(3).setCellValue(newEmail);
                         if(newClassLevel != 0)
                             row.getCell(4).setCellValue(newClassLevel);
-                        isUpdated = true;
+                        //TODO: add the rest
+
                         break;
                     }
                 }
@@ -214,27 +220,27 @@ public class ExcelHelper {
             throw new RuntimeException("Failed to update data in Excel file by ID: " + filePath, e);
         }
 
-        return isUpdated;
     }
 
-    // Convenience methods for Students
-    public List<Student> readStudents() {
-        return readFromExcel(STUDENT_FILE);
+    // Convenience methods for Teachers
+    public List<Teacher> readTeachers() {
+        return readFromExcel(TEACHER_FILE);
     }
 
-    public void writeStudents(List<Student> students) {
-        writeToExcel(STUDENT_FILE, students, studentHeaders);
+    public void writeTeachers(List<Teacher> teachers) {
+        writeToExcel(TEACHER_FILE, teachers, teacherHeaders);
     }
 
-    public Student readStudentById(Integer id) {
-        return readFromExcelById(STUDENT_FILE, id);
+    public Teacher readTeacherById(Integer id) {
+        return readFromExcelById(TEACHER_FILE, id);
     }
 
-    public boolean deleteStudentById(Integer id) {
-        return deleteFromExcelById(STUDENT_FILE, id);
+    public void deleteTeacherById(Integer id) {
+        deleteFromExcelById(TEACHER_FILE, id);
     }
 
-    public boolean updateStudentById(Integer id, Student student) {
-        return updateByID(STUDENT_FILE, id, student);
+    public void updateTeacherById(Integer id, Teacher teacher) {
+        updateByID(TEACHER_FILE, id, teacher);
     }
+
 }

@@ -8,8 +8,6 @@ public class Student {
     private String email;
     private int classLevel;
 
-
-
     public Student(){
         this.setId(0);
         this.setName("");

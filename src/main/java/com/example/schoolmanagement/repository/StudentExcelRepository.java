@@ -8,29 +8,29 @@ import java.util.List;
 @Repository
 public class StudentExcelRepository {
 
-    private final ExcelHelper excelHelper;
+    private final StudentExcelHelper studentExcelHelper;
 
-    public StudentExcelRepository(ExcelHelper excelHelper) {
-        this.excelHelper = excelHelper;
+    public StudentExcelRepository(StudentExcelHelper studentExcelHelper) {
+        this.studentExcelHelper = studentExcelHelper;
     }
 
     public List<Student> getAllStudents() {
-        return excelHelper.readStudents();
+        return studentExcelHelper.readStudents();
     }
 
     public void saveAllStudents(List<Student> students) {
-        excelHelper.writeStudents(students);
+        studentExcelHelper.writeStudents(students);
     }
 
     public Student getStudentById(Integer id) {
-        return excelHelper.readStudentById(id);
+        return studentExcelHelper.readStudentById(id);
     }
 
-    public boolean deleteStudentById(Integer id) {
-        return excelHelper.deleteStudentById(id);
+    public void deleteStudentById(Integer id) {
+        studentExcelHelper.deleteStudentById(id);
     }
 
-    public boolean updateStudentById(Integer id, Student student) {
-        return excelHelper.updateStudentById(id, student);
+    public void updateStudentById(Integer id, Student student) {
+        studentExcelHelper.updateStudentById(id, student);
     }
 }
