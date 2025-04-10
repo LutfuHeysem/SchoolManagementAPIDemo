@@ -1,12 +1,21 @@
 package com.example.schoolmanagement.model;
 
-public class Student {
+import jakarta.persistence.*;
 
+@Entity
+public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Version
+    private int version;
+
     private String name;
     private int age;
     private String email;
     private int classLevel;
+    private String approvalStatus; // PENDING, APPROVED, REJECTED
 
     public Student(){
         this.setId(0);
@@ -16,8 +25,7 @@ public class Student {
         this.setClassLevel(0);
     }
 
-    public Student(int id, String name, int age, String email, int classLevel) {
-        this.id = id;
+    public Student(String name, int age, String email, int classLevel) {
         this.name = name;
         this.age = age;
         this.email = email;
@@ -64,5 +72,17 @@ public class Student {
         this.email = email;
     }
 
-    
+    public void setApprovalStatus(String approved) {
+        this.approvalStatus = approved;
+    }
+
+    public String getApprovalStatus() {
+        return this.approvalStatus;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {}
 }

@@ -1,107 +1,81 @@
 package com.example.schoolmanagement.api.controller;
 
-import com.example.schoolmanagement.model.PendingRequest;
-import com.example.schoolmanagement.service.ManagerService;
-import com.example.schoolmanagement.service.PendingRequestService;
-import com.example.schoolmanagement.service.StudentService;
-import com.example.schoolmanagement.service.TeacherService;
+import com.example.schoolmanagement.model.TaskDTO;
+import org.flowable.engine.TaskService;
+import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/manager")
 public class ManagerController {
-    private final ManagerService managerService;
-    private final PendingRequestService pendingRequestService;
-    private final StudentService studentService;
-    private final TeacherService teacherService;
+
+    private final TaskService taskService;
 
     @Autowired
-    public ManagerController(ManagerService managerService,
-                             PendingRequestService pendingRequestService,
-                             StudentService studentService, TeacherService teacherService) {
-        this.managerService = managerService;
-        this.pendingRequestService = pendingRequestService;
-        this.studentService = studentService;
-        this.teacherService = teacherService;
+    public ManagerController(TaskService taskService) {
+        this.taskService = taskService;
     }
 
-    @PostMapping("/approve")
-    public ResponseEntity<String> approveRequest(
-            @RequestParam String requestId,
-            @RequestParam String username,
-            @RequestParam String password) {
+    @GetMapping("/tasks")
+    public List<TaskDTO> getPendingTasks() {
+        List<Task> tasks = taskService.createTaskQuery()
+                .taskCandidateGroup("manager")
+                .includeProcessVariables()
+                .list();
 
-        // Authenticate manager
-        if (!managerService.authenticate(username, password)) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
+        return tasks.stream()
+                .map(task -> {
+                    Map<String, Object> variables = task.getProcessVariables();
+                    String operationType = (String) variables.get("operationType");
+                    String entityDetails = getEntityDetails(operationType, variables);
 
-        PendingRequest request = pendingRequestService.getRequest(requestId);
-        if (request == null) {
-            return ResponseEntity.badRequest().body("Invalid request ID");
-        }
+                    return new TaskDTO(
+                            task.getId(),
+                            task.getName(),
+                            task.getProcessInstanceId(),
+                            "Operation: " + operationType,  // Show operation type
+                            entityDetails                  // Show entity-specific details
+                    );
+                })
+                .collect(Collectors.toList());
+    }
 
-        switch (request.getOperationType()) {
+    private String getEntityDetails(String operationType, Map<String, Object> variables) {
+        switch (operationType) {
             case "CREATE_STUDENT":
-                studentService.addStudent(request.getStudent());
-                break;
-            case "UPDATE_STUDENT":
-                studentService.updateStudent(request.getStudent().getId(), request.getUpdatedStudent());
-                break;
+                return String.format("Name: %s, Age: %d, Class: %d",
+                        variables.get("studentName"),
+                        (Integer)variables.get("studentAge"),
+                        (Integer)variables.get("studentClassLevel"));
             case "DELETE_STUDENT":
-                studentService.deleteStudent(request.getStudent().getId());
-                break;
+                return "Student ID: " + variables.get("studentId");
             case "CREATE_TEACHER":
-                teacherService.addTeacher(request.getTeacher());
-                break;
+                return String.format("Name: %s, Age: %d, AssignedClass: %d",
+                        variables.get("teacherName"),
+                        (Integer)variables.get("teacherAge"),
+                        (Integer)variables.get("teacherAssignedClass"));
             case "DELETE_TEACHER":
-                teacherService.deleteTeacher(request.getTeacher().getId());
-                break;
+                return "Teacher ID: " + variables.get("teacherId");
             default:
-                return ResponseEntity.badRequest().body("Unsupported operation");
+                return "No details available";
         }
-
-        pendingRequestService.deleteRequest(requestId);
-        return ResponseEntity.ok("Operation approved and completed");
     }
 
-    @PostMapping("/reject")
-    public ResponseEntity<String> rejectRequest(
-            @RequestParam String requestId,
-            @RequestParam String username,
-            @RequestParam String password) {
-        // Authenticate manager
-        if (!managerService.authenticate(username, password)) {
-            return ResponseEntity.status(401).body("Unauthorized");
-        }
-
-        PendingRequest request = pendingRequestService.getRequest(requestId);
-        if (request == null) {
-            return ResponseEntity.badRequest().body("Invalid request ID");
-        }
-        if(!request.getOperationType().equals("CREATE_STUDENT") &&
-            !request.getOperationType().equals("DELETE_STUDENT") &&
-            !request.getOperationType().equals("UPDATE_STUDENT") &&
-            !request.getOperationType().equals("LEAVE") &&
-            !request.getOperationType().equals("CREATE_TEACHER") &&
-            !request.getOperationType().equals("DELETE_TEACHER"))
-            ResponseEntity.badRequest().body("Unsupported operation");
-
-        pendingRequestService.deleteRequest(requestId);
-        return ResponseEntity.ok("Operation rejected and deleted");
+    @PostMapping("/approve/{taskId}")
+    public ResponseEntity<String> approveTask(@PathVariable String taskId) {
+        taskService.complete(taskId, Map.of("approved", true));
+        return ResponseEntity.ok("Request approved");
     }
 
-    @GetMapping
-    public Map<String, PendingRequest> getAllPendingRequests() {
-        return pendingRequestService.getAllRequests();
-    }
-
-    @GetMapping("/{id}")
-    public PendingRequest getRequest(@PathVariable String id) {
-        return pendingRequestService.getRequest(id);
+    @PostMapping("/reject/{taskId}")
+    public ResponseEntity<String> rejectTask(@PathVariable String taskId) {
+        taskService.complete(taskId, Map.of("approved", false));
+        return ResponseEntity.ok("Request rejected");
     }
 }

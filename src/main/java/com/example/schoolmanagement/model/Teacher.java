@@ -1,14 +1,21 @@
 package com.example.schoolmanagement.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class Teacher {
-    private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     private String name;
     private int age;
     private String email;
     private int assignedClass;
-    private boolean isOnLeave;
-    private int remainingLeaveQuota;
-    private int currentLeaveDays;
+    private String approvalStatus; // PENDING, APPROVED, REJECTED
 
     public Teacher(){
         this.setId(0);
@@ -16,20 +23,13 @@ public class Teacher {
         this.setAge(0);
         this.setEmail("");
         this.setAssignedClass(0);
-        this.setOnLeave(false);
-        this.setRemainingLeaveQuota(15);
-        this.setCurrentLeaveDays(0);
     }
 
-    public Teacher(int id, String name, int age, String email, int assignedClass) {
-        this.id = id;
+    public Teacher(String name, int age, String email, int assignedClass) {
         this.name = name;
         this.age = age;
         this.email = email;
         this.assignedClass = assignedClass;
-        this.isOnLeave = false;
-        this.remainingLeaveQuota = 15;
-        this.currentLeaveDays = 0;
     }
 
     public int getId() {
@@ -72,20 +72,12 @@ public class Teacher {
         this.assignedClass = assignedClass;
     }
 
-    public boolean isOnLeave() {
-        return this.isOnLeave;
+    public void setApprovalStatus(String approved) {
+        this.approvalStatus = approved;
     }
 
-    public void setOnLeave(boolean isOnLeave) {
-        this.isOnLeave = isOnLeave;
+    public String getApprovalStatus() {
+        return this.approvalStatus;
     }
-
-    public int getRemainingLeaveQuota() {return this.remainingLeaveQuota;}
-
-    public void setRemainingLeaveQuota(int remainingLeaveQuota) {this.remainingLeaveQuota = remainingLeaveQuota;}
-
-    public int getCurrentLeaveDays() {return this.currentLeaveDays;}
-
-    public void setCurrentLeaveDays(int currentLeaveDays) {this.currentLeaveDays = currentLeaveDays;}
 
 }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions
+        xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:flowable="http://flowable.org/bpmn"
+        xsi:schemaLocation="
+        http://www.omg.org/spec/BPMN/20100524/MODEL
+        http://www.omg.org/spec/BPMN/20100501/BPMN20.xsd
+        http://flowable.org/bpmn
+        http://flowable.org/schema/bpmn"
+        targetNamespace="http://example.com/bpmn20"
+        id="definitions_1">
+
+    <process id="approvalProcess" name="Approval Process" isExecutable="true">
+        <startEvent id="startEvent" />
+        <sequenceFlow sourceRef="startEvent" targetRef="approvalTask" />
+
+        <userTask id="approvalTask" name="Approve Request"
+                  flowable:candidateGroups="manager" />
+        <sequenceFlow sourceRef="approvalTask" targetRef="decisionGateway" />
+
+        <exclusiveGateway id="decisionGateway" />
+        <sequenceFlow sourceRef="decisionGateway" targetRef="approveService" name="approved">
+            <conditionExpression>${approved}</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow sourceRef="decisionGateway" targetRef="rejectService" name="rejected">
+            <conditionExpression>${!approved}</conditionExpression>
+        </sequenceFlow>
+
+        <serviceTask id="approveService" name="Process Approval"
+                     flowable:delegateExpression="${approvalDelegate}" />
+        <serviceTask id="rejectService" name="Process Rejection"
+                     flowable:delegateExpression="${rejectionDelegate}" />
+
+        <sequenceFlow sourceRef="approveService" targetRef="endEvent" />
+        <sequenceFlow sourceRef="rejectService" targetRef="endEvent" />
+        <endEvent id="endEvent" />
+    </process>
+</definitions>

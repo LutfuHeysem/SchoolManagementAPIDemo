@@ -1,80 +1,92 @@
 package com.example.schoolmanagement.api.controller;
 
-import com.example.schoolmanagement.model.PendingRequest;
 import com.example.schoolmanagement.model.Student;
-import com.example.schoolmanagement.service.PendingRequestService;
-import com.example.schoolmanagement.service.StudentService;
+import com.example.schoolmanagement.repository.StudentRepository;
+import jakarta.transaction.Transactional;
+import org.flowable.engine.RuntimeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/students")
 public class StudentController {
 
-    private final StudentService studentService;
-    private final PendingRequestService pendingRequestService;
+    private final RuntimeService runtimeService;
+    private final StudentRepository studentRepository;
 
     @Autowired
-    public StudentController(StudentService studentService,
-                             PendingRequestService pendingRequestService) {
-        this.studentService = studentService;
-        this.pendingRequestService = pendingRequestService;
+    public StudentController(RuntimeService runtimeService,
+                             StudentRepository studentRepository) {
+        this.runtimeService = runtimeService;
+        this.studentRepository = studentRepository;
     }
 
-    @GetMapping
-    public List<Student> getStudents() {
-        return studentService.getStudents();
-    }
-
-    @GetMapping("/{id}")
-    public Student getStudent(@PathVariable Integer id) {
-        return studentService.getStudent(id);
-    }
-
+    @Transactional
     @PostMapping
     public ResponseEntity<String> addStudent(
-            @RequestParam int id,
             @RequestParam String name,
             @RequestParam int age,
             @RequestParam String email,
             @RequestParam int classLevel) {
-        Student student = new Student(id, name, age, email, classLevel);
-//        studentService.addStudent(student);
 
-        String requestId = pendingRequestService.createRequest(new PendingRequest("CREATE_STUDENT", student));
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("operationType", "CREATE_STUDENT");
+        variables.put("studentName", name);
+        variables.put("studentAge", age);
+        variables.put("studentEmail", email);
+        variables.put("studentClassLevel", classLevel);
 
-        return ResponseEntity.ok("Request ID: " + requestId + ". Awaiting manager approval.");
+        runtimeService.startProcessInstanceByKey("approvalProcess", variables);
+
+        return ResponseEntity.ok("Student creation request submitted for approval");
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteStudent(@PathVariable Integer id) {
-        Student student = studentService.getStudent(id);
-        if(student == null)
-            return ResponseEntity.ok("Student not found");
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("operationType", "DELETE_STUDENT");
+        variables.put("studentId", id);
 
-        String requestId = pendingRequestService.createRequest(new PendingRequest("DELETE_STUDENT", student));
+        runtimeService.startProcessInstanceByKey("approvalProcess", variables);
 
-        return ResponseEntity.ok("Request ID: " + requestId + ". Awaiting manager approval.");
+        return ResponseEntity.ok("Student deletion request submitted for approval");
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<String> updateStudent(
+            @PathVariable Integer id,
+            @RequestParam String newName,
+            @RequestParam Integer newAge,
+            @RequestParam String newEmail,
+            @RequestParam Integer newClassLevel) {
 
-    @PatchMapping("/{id}/{newId}/{newName}/{newAge}/{newEmail}/{newClassLevel}")
-    public ResponseEntity<String> updateStudent(@PathVariable Integer id,
-                                                @PathVariable Integer newId,
-                                                @PathVariable String newName,
-                                                @PathVariable Integer newAge,
-                                                @PathVariable String newEmail,
-                                                @PathVariable Integer newClassLevel) {
-        Student checkStudent = studentService.getStudent(id);
-        if(checkStudent == null)
-            return ResponseEntity.ok("Student not found");
-        Student student = new Student(newId, newName, newAge, newEmail, newClassLevel);
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("operationType", "UPDATE_STUDENT");
+        variables.put("studentId", id);
+        variables.put("studentName", newName);
+        variables.put("studentAge", newAge);
+        variables.put("studentEmail", newEmail);
+        variables.put("studentClassLevel", newClassLevel);
 
-        String requestId = pendingRequestService.createRequest(new PendingRequest("UPDATE_STUDENT", checkStudent, student));
+        runtimeService.startProcessInstanceByKey("approvalProcess", variables);
 
-        return ResponseEntity.ok("Request ID: " + requestId + ". Awaiting manager approval.");
+        return ResponseEntity.ok("Student update request submitted for approval");
     }
+
+    @GetMapping
+    public List<Student> getStudents() {
+        return studentRepository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Student getStudent(@PathVariable Integer id) {
+        return studentRepository.findById(id).get();
+    }
+
 }
+
