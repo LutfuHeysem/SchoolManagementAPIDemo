@@ -79,9 +79,11 @@ A Spring Boot application integrated with Flowable workflow engine to manage sch
 
 2. **BPMN Diagram** (`approval-process.bpmn20.xml`):
    ```
-   Start → User Task (Manager Approval) → Gateway → [Approved → Service Task] → End
-                                       └─── [Rejected → Service Task] ───┘
+   Start → User Task (Approve Task) → Gateway → [Manager Approve → Service Task] → End
+                                       └─── [Manager Reject → Service Task] ───┘
    ```
+![image](https://github.com/user-attachments/assets/fb988220-b57b-4ff6-a8ff-78379262ed80)
+
 
 3. **Delegates**:
     - `ApprovalDelegate`: Handles database operations for approved requests.
